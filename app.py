@@ -422,4 +422,5 @@ if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 5000))
     print(f'ClassWatch running on http://localhost:{port}')
-    socketio.run(app, debug=True, host='0.0.0.0', port=port)
+    # socketio.run(app, debug=True, host='0.0.0.0', port=port)
+    socketio.run(app, debug=False, host='0.0.0.0', port=port)
