@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Welcome back, {{ user.name }}</p>
+    </div>
+    <a href="{{ url_for('create_meeting_route') }}" class="btn btn-primary" id="btn-new-meeting">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:2px;">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      New Meeting
+    </a>
+  </div>
+
+  <div class="section-title">Your Meetings</div>
+
+  {% if meetings %}
+  <div class="meetings-table-wrap">
+    <table class="meetings-table" id="meetings-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Code</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in meetings %}
+        <tr>
+          <td style="font-weight:500;">{{ m.title }}</td>
+          <td><span class="code-badge">{{ m.code }}</span></td>
+          <td style="color:var(--muted);">{{ m.created_at[:16].replace('T', ' ') }}</td>
+          <td>
+            {% if m.is_active %}
+            <span class="status-dot status-active"></span>
+            <span style="color:#34D399;font-weight:500;">Active</span>
+            {% else %}
+            <span class="status-dot status-ended"></span>
+            <span style="color:var(--muted);">Ended</span>
+            {% endif %}
+          </td>
+          <td class="table-actions">
+            {% if m.is_active %}
+            <a href="{{ url_for('teacher_room', code=m.code) }}" class="btn btn-sm btn-primary" id="open-{{ m.code }}">Open Room</a>
+            <form method="POST" action="{{ url_for('end_meeting_route', code=m.code) }}" style="display:inline">
+              <button class="btn btn-sm btn-danger" id="end-{{ m.code }}">End</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" id="no-meetings">
+    <div style="font-size:32px;margin-bottom:8px;">📋</div>
+    <p>No meetings yet. Create your first meeting to get started.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

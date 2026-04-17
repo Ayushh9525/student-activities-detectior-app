@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}{{ meeting.title }} — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="room-layout">
+
+  <!-- Left: teacher video + own camera -->
+  <div class="room-main">
+    <div class="room-header">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="room-title">{{ meeting.title }}</span>
+        <span class="code-badge" id="meeting-code-display">{{ code }}</span>
+      </div>
+      <div class="room-status-pill" id="status-pill">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="animation:spin 1.5s linear infinite;">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-dasharray="28" stroke-dashoffset="8" stroke-linecap="round"/>
+        </svg>
+        Connecting…
+      </div>
+    </div>
+
+    <!-- Teacher video (large) -->
+    <div class="video-wrap" id="teacher-video-wrap">
+      <video id="teacher-video" autoplay playsinline></video>
+      <div class="video-label">Teacher</div>
+    </div>
+
+    <!-- Student's own camera (small PiP) -->
+    <div class="pip-wrap" id="pip-wrap">
+      <video id="student-video" autoplay muted playsinline></video>
+      <div class="video-label pip-label">You</div>
+      <div class="video-overlay" id="video-overlay">
+        <span id="overlay-text"></span>
+      </div>
+      <canvas id="capture-canvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="room-info-bar">
+      <div class="info-item">
+        <span class="info-label">Status</span>
+        <span id="engagement-status" class="info-value">—</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Eye Score</span>
+        <span id="ear-value" class="info-value" style="font-family:'JetBrains Mono',monospace;">—</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Student</span>
+        <span class="info-value">{{ user.name }}</span>
+      </div>
+    </div>
+
+    <div class="room-controls">
+      <button id="btn-toggle-cam" class="btn btn-outline btn-sm">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M11 6l4-2v8l-4-2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Pause Camera
+      </button>
+      <button id="btn-toggle-mic" class="btn btn-outline btn-sm">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 7a5 5 0 0 0 10 0M8 12v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Mute
+      </button>
+      <a href="{{ url_for('student_home') }}" class="btn btn-danger btn-sm" id="btn-leave"
+         onclick="return confirm('Leave meeting?')">Leave</a>
+    </div>
+  </div>
+
+  <!-- Right: alerts -->
+  <div class="room-side">
+    <div class="side-section">
+      <div class="side-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1L8 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6v3M8 11.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Your Alerts
+      </div>
+      <div id="alert-list" class="alert-list">
+        <div class="empty-alerts" id="no-alerts-msg">No alerts so far — keep it up! 🎯</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+<script>
+  const MEETING_CODE = "{{ code }}";
+  const STUDENT_NAME = "{{ user.name }}";
+  const STUDENT_SID_KEY = "student";
+</script>
+<script src="{{ url_for('static', filename='js/student.js') }}"></script>
+{% endblock %}

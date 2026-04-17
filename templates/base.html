@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ClassWatch{% endblock %}</title>
+  <meta name="description" content="AI-powered engagement monitoring for online classes" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-brand">⬡ ClassWatch</a>
+    {% if session.get('user_id') %}
+    <div class="nav-right">
+      <span class="nav-user">
+        <span class="role-badge role-{{ session.get('role') }}">{{ session.get('role') }}</span>
+        {{ session.get('name') }}
+      </span>
+      <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline">Sign out</a>
+    </div>
+    {% endif %}
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

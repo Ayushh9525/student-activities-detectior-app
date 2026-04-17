@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}{{ meeting.title }} — Teacher View — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="room-layout teacher-layout">
+
+  <!-- Left: teacher cam + student grid -->
+  <div class="room-main">
+    <div class="room-header">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="room-title">{{ meeting.title }}</span>
+        <span class="code-badge">{{ code }}</span>
+        <button class="btn btn-sm btn-outline" onclick="copyLink()" id="btn-copy-link">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="margin-right:2px;">
+            <rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M11 5V3a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Copy Link
+        </button>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="student-count" class="info-chip">0 students</span>
+        <form method="POST" action="{{ url_for('end_meeting_route', code=code) }}"
+              onsubmit="return confirm('End meeting for everyone?')" style="display:inline">
+          <button class="btn btn-sm btn-danger" id="btn-end-meeting">End Meeting</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Share link -->
+    <div class="share-bar">
+      <span class="share-label">Share link:</span>
+      <input type="text" id="share-link" class="share-link-input" readonly
+             value="{{ host_url }}join/{{ code }}" />
+      <button class="btn btn-sm btn-outline" onclick="copyLink()" id="btn-copy-2">Copy</button>
+    </div>
+
+    <!-- Teacher's own camera (top bar) -->
+    <div class="teacher-cam-bar">
+      <div class="teacher-cam-wrap">
+        <video id="teacher-local-video" autoplay muted playsinline></video>
+        <div class="video-label">You</div>
+      </div>
+      <div class="teacher-controls">
+        <button id="btn-toggle-cam" class="btn btn-sm btn-outline">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M11 6l4-2v8l-4-2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Pause Cam
+        </button>
+        <button id="btn-toggle-mic" class="btn btn-sm btn-outline">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 7a5 5 0 0 0 10 0M8 12v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Mute
+        </button>
+      </div>
+    </div>
+
+    <!-- Student video grid -->
+    <div class="section-label">Students</div>
+    <div id="student-grid" class="student-grid">
+      <div class="empty-state" id="waiting-msg" style="grid-column:1/-1;">
+        <div style="font-size:28px;margin-bottom:6px;">👥</div>
+        Waiting for students to join…
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: alert log + summary -->
+  <div class="room-side">
+    <div class="side-section" style="flex:1;min-height:0;">
+      <div class="side-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1L8 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6v3M8 11.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Alert Log
+        <span id="alert-count-badge" class="alert-badge" style="display:none;">0</span>
+      </div>
+      <div id="teacher-alert-list" class="alert-list">
+        <div class="empty-alerts" id="no-teacher-alerts">No alerts yet</div>
+      </div>
+    </div>
+
+    <div class="side-section" style="margin-top:18px;">
+      <div class="side-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 8h8M4 5h5M4 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Summary
+      </div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-num" id="sum-total">0</span>
+          <span class="summary-label">Total</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-num green" id="sum-engaged">0</span>
+          <span class="summary-label">Engaged</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-num red" id="sum-alert">0</span>
+          <span class="summary-label">Alerts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast" style="display:none;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const MEETING_CODE = "{{ code }}";
+  const TEACHER_NAME = "{{ user.name }}";
+  function copyLink() {
+    const v = document.getElementById('share-link').value;
+    navigator.clipboard.writeText(v).then(() => showToast('✓ Link copied!'));
+  }
+</script>
+<script src="{{ url_for('static', filename='js/teacher.js') }}"></script>
+{% endblock %}

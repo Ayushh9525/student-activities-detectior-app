@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Student — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card">
+    <h2 class="card-title" style="text-align:center;">Join a Class</h2>
+    <p class="auth-sub" style="margin-bottom:20px;">Enter the meeting code your teacher shared</p>
+
+    {% if error %}
+    <div class="alert alert-error" id="join-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('join_by_code') }}" id="join-form">
+      <div class="form-group">
+        <label for="code">Meeting Code</label>
+        <input type="text" id="code" name="code" class="form-input"
+               placeholder="ABC123" maxlength="6"
+               style="text-transform:uppercase;letter-spacing:0.2em;text-align:center;font-size:18px;font-weight:600;font-family:'JetBrains Mono',monospace;"
+               required autocomplete="off" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btn-join">Join Meeting</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

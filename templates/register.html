@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Register — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card">
+    <h2 class="card-title" style="text-align:center;">Create Account</h2>
+    <p class="auth-sub" style="margin-bottom:20px;">Join ClassWatch to get started</p>
+
+    {% if error %}
+    <div class="alert alert-error" id="register-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('register') }}" id="register-form">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" class="form-input"
+               placeholder="Your name" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" class="form-input"
+               placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-input"
+               placeholder="Min. 6 characters" required minlength="6" />
+      </div>
+      <div class="form-group">
+        <label>I am a</label>
+        <div class="role-toggle">
+          <label class="role-option">
+            <input type="radio" name="role" value="student" id="role-student" checked />
+            <span id="role-student-label">Student</span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="teacher" id="role-teacher" />
+            <span id="role-teacher-label">Teacher</span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btn-register">Create Account</button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Create Meeting — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card">
+    <h2 class="card-title" style="text-align:center;">New Meeting</h2>
+    <p class="auth-sub" style="margin-bottom:20px;">Create a monitored classroom session</p>
+    <form method="POST" action="{{ url_for('create_meeting_route') }}" id="create-meeting-form">
+      <div class="form-group">
+        <label for="title">Meeting Title</label>
+        <input type="text" id="title" name="title" class="form-input"
+               placeholder="e.g. Math — Lecture 4" required maxlength="80" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btn-create">Create Meeting</button>
+    </form>
+    <p class="auth-footer">
+      <a href="{{ url_for('teacher_home') }}">← Back to dashboard</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

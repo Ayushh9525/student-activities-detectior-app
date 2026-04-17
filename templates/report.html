@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Report — {{ meeting.title }} — ClassWatch{% endblock %}
+
+{% block content %}
+<div class="page-container" style="max-width:1100px;">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Meeting Report</h1>
+      <p class="page-sub">{{ meeting.title }} · <span class="code-badge" style="font-size:12px;">{{ code }}</span></p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-sm btn-outline" onclick="window.print()" id="btn-print">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6V1h8v5M4 12H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="4" y="10" width="8" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        Print
+      </button>
+      <a href="{{ url_for('teacher_home') }}" class="btn btn-sm btn-primary" id="btn-back-dash">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Meeting Info -->
+  <div class="report-info-bar">
+    <div class="report-info-item">
+      <span class="report-info-label">Created</span>
+      <span class="report-info-value">{{ meeting.created_at[:16].replace('T', ' ') }}</span>
+    </div>
+    {% if meeting.ended_at %}
+    <div class="report-info-item">
+      <span class="report-info-label">Ended</span>
+      <span class="report-info-value">{{ meeting.ended_at[:16].replace('T', ' ') }}</span>
+    </div>
+    {% endif %}
+    <div class="report-info-item">
+      <span class="report-info-label">Students</span>
+      <span class="report-info-value">{{ summary.total_students }}</span>
+    </div>
+    <div class="report-info-item">
+      <span class="report-info-label">Total Alerts</span>
+      <span class="report-info-value" style="color:#FCA5A5;">{{ summary.total_alerts }}</span>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="section-title" style="margin-top:28px;">Overview</div>
+  <div class="report-summary-grid">
+    <div class="report-summary-card">
+      <div class="report-summary-icon" style="background:rgba(99,102,241,0.15);color:#818CF8;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="report-summary-num">{{ summary.total_students }}</div>
+      <div class="report-summary-label">Total Students</div>
+    </div>
+
+    <div class="report-summary-card">
+      <div class="report-summary-icon" style="background:rgba(16,185,129,0.15);color:#34D399;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="report-summary-num" style="color:#34D399;">{{ summary.avg_engagement }}%</div>
+      <div class="report-summary-label">Avg Engagement</div>
+    </div>
+
+    <div class="report-summary-card">
+      <div class="report-summary-icon" style="background:rgba(239,68,68,0.15);color:#FCA5A5;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="report-summary-num" style="color:#FCA5A5;">{{ summary.total_alerts }}</div>
+      <div class="report-summary-label">Total Alerts</div>
+    </div>
+
+    {% if summary.best_student %}
+    <div class="report-summary-card">
+      <div class="report-summary-icon" style="background:rgba(251,191,36,0.15);color:#FBBF24;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="report-summary-num" style="color:#FBBF24;font-size:18px;">{{ summary.best_student.student_name }}</div>
+      <div class="report-summary-label">Most Engaged ({{ summary.best_student.engagement_score }}%)</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Per-Student Reports -->
+  <div class="section-title" style="margin-top:28px;">Student Reports</div>
+
+  {% if reports %}
+  <div class="report-cards">
+    {% for r in reports %}
+    <div class="report-card" id="report-{{ loop.index }}">
+      <div class="report-card-header">
+        <div class="report-card-name">
+          <div class="report-avatar" style="background:{{'rgba(16,185,129,0.2)' if r.engagement_score >= 70 else ('rgba(245,158,11,0.2)' if r.engagement_score >= 40 else 'rgba(239,68,68,0.2)')}}; color:{{'#34D399' if r.engagement_score >= 70 else ('#FBBF24' if r.engagement_score >= 40 else '#FCA5A5')}};">
+            {{ r.student_name[0]|upper }}
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:15px;">{{ r.student_name }}</div>
+            <div style="font-size:12px;color:var(--muted);">{{ r.joined_at }} — {{ r.left_at }}</div>
+          </div>
+        </div>
+        <div class="report-score {% if r.engagement_score >= 70 %}score-good{% elif r.engagement_score >= 40 %}score-warn{% else %}score-bad{% endif %}">
+          {{ r.engagement_score }}%
+        </div>
+      </div>
+
+      <!-- Engagement bar -->
+      <div class="report-bar-wrap">
+        <div class="report-bar">
+          <div class="report-bar-fill bar-engaged" style="width:{{ (r.engaged_frames / r.total_frames * 100) if r.total_frames > 0 else 0 }}%;" title="Engaged"></div>
+          <div class="report-bar-fill bar-sleeping" style="width:{{ (r.sleeping_frames / r.total_frames * 100) if r.total_frames > 0 else 0 }}%;" title="Sleeping"></div>
+          <div class="report-bar-fill bar-away" style="width:{{ (r.away_frames / r.total_frames * 100) if r.total_frames > 0 else 0 }}%;" title="Away"></div>
+          <div class="report-bar-fill bar-noface" style="width:{{ (r.no_face_frames / r.total_frames * 100) if r.total_frames > 0 else 0 }}%;" title="Not visible"></div>
+        </div>
+        <div class="report-bar-legend">
+          <span><span class="legend-dot" style="background:#10B981;"></span> Engaged</span>
+          <span><span class="legend-dot" style="background:#F97316;"></span> Sleeping</span>
+          <span><span class="legend-dot" style="background:#F59E0B;"></span> Away</span>
+          <span><span class="legend-dot" style="background:#6B7280;"></span> Not visible</span>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="report-stats-row">
+        <div class="report-stat">
+          <span class="report-stat-num">{{ r.total_frames }}</span>
+          <span class="report-stat-label">Frames</span>
+        </div>
+        <div class="report-stat">
+          <span class="report-stat-num" style="color:#34D399;">{{ r.engaged_frames }}</span>
+          <span class="report-stat-label">Engaged</span>
+        </div>
+        <div class="report-stat">
+          <span class="report-stat-num" style="color:#FB923C;">{{ r.sleeping_alerts }}</span>
+          <span class="report-stat-label">Sleep Alerts</span>
+        </div>
+        <div class="report-stat">
+          <span class="report-stat-num" style="color:#FBBF24;">{{ r.away_alerts }}</span>
+          <span class="report-stat-label">Away Alerts</span>
+        </div>
+        <div class="report-stat">
+          <span class="report-stat-num" style="color:#9CA3AF;">{{ r.no_face_alerts }}</span>
+          <span class="report-stat-label">No-Face</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:32px;margin-bottom:8px;">📊</div>
+    <p>No student data was recorded for this meeting.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
